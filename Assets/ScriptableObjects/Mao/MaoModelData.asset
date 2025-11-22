@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dfb6e781190836a41a23e2123afc64fd, type: 3}
+  m_Name: MaoModelData
+  m_EditorClassIdentifier: 
+  modelName: Mao
+  modelAvatar: {fileID: 0}
+  modelPrefab: {fileID: 8072903811253450393, guid: ddbde7fa1cbff594f9944e08d8774b98, type: 3}
+  cursorList: []
+  starterCursor: {fileID: 11400000, guid: 2f6cbec46c7b3df4bac1707cd867018e, type: 2}
+  interactionSet: {fileID: 11400000, guid: e8f285ae09195944a8d2c2e6d9af7365, type: 2}
+  starterMotion: {fileID: 7400000, guid: 52ca1d7802ba99549a7c95a608a48622, type: 2}
+  starterExpression: 0
+  modelScreenFill: 1
+  topScreenMarginPercent: 0.25

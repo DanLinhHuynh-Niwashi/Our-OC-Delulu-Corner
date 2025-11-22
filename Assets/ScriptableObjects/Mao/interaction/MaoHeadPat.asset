@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c4e99b2cf88a8c04fb43527dd191daa3, type: 3}
+  m_Name: MaoHeadPat
+  m_EditorClassIdentifier: 
+  targetAnim: {fileID: 7400000, guid: d62b49626183b3e439b8a6e194100f1b, type: 2}
+  animLoop: 0
+  targetExpression: -1
+  targetDialog: 
+  duration: -1
+  isEndOnAnimEnd: 1
+  isEndOnDialogEnd: 0
