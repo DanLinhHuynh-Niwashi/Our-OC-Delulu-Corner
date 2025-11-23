@@ -118,11 +118,16 @@ public class CharacterModel : MonoBehaviour
         defaultExpression = modelData.starterExpression;
         defaultMotion = modelData.starterMotion;
         interactionSet = modelData.interactionSet;
-        currentCursor = modelData.starterCursor;
 
+        SetCursor(modelData.starterCursor);
         SetModel(modelData.modelPrefab);
     }
 
+    public void SetCursor(CursorData data)
+    {
+        currentCursor = data;
+        CursorManager.Instance.SetCursor(data);
+    }
     public void SetModel(CubismModel newModel)
     {
         if (newModel == null)
@@ -320,7 +325,8 @@ public class CharacterModel : MonoBehaviour
     void UpdateLookTarget()
     {
         if (mouseLookTarget == null) return;
-
+        if (CursorManager.Instance.IsCursorBlocked()) return;
+        if (CursorManager.Instance.IgnoreNextFrame) return;
         if (pressed && currentInteraction == null)
         {
             var world = cam.ScreenToWorldPoint(new Vector3(
