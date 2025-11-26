@@ -96,5 +96,5 @@ public class CursorManager : MonoBehaviour
         }
     }
 
-    public CursorData GetCurrentCursor() => currentCursor;
+    public CursorData CurrentCursor { get { return currentCursor; } }
 }

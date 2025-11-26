@@ -149,6 +149,8 @@ GameObject:
   - component: {fileID: 2447485956765778192}
   - component: {fileID: 1576729558873740331}
   - component: {fileID: 655419053637286881}
+  - component: {fileID: 7709624944044274707}
+  - component: {fileID: 6159992006566189190}
   m_Layer: 5
   m_Name: SkinButton
   m_TagString: Untagged
@@ -257,7 +259,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2447485956765778192}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 7709624944044274707}
+        m_TargetAssemblyTypeName: SkinButton, Assembly-CSharp
+        m_MethodName: OnClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &655419053637286881
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -270,3 +284,47 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b1b4bd327683b74aa0fa0b6b35cb1da, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &7709624944044274707
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4091408872558892216}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00bb6fd4f6599ed4b8661a5d208b6828, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  skinData: {fileID: 0}
+  button: {fileID: 1576729558873740331}
+  buttonImage: {fileID: 2447485956765778192}
+  eventChannel: {fileID: 11400000, guid: d4b98e7fb49948f4bbef538df2278bfd, type: 2}
+--- !u!114 &6159992006566189190
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4091408872558892216}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7af1ccab1a7db1f458d232789ab3a64f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  eventChannel: {fileID: 11400000, guid: d4b98e7fb49948f4bbef538df2278bfd, type: 2}
+  response:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 7709624944044274707}
+        m_TargetAssemblyTypeName: SkinButton, Assembly-CSharp
+        m_MethodName: OnButtonSelected
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2

@@ -7,12 +7,20 @@ using UnityEngine;
 public class ModelData : ScriptableObject
 {
     public string modelName;
+
+    public Color primaryModulate;
+    public Color secondaryModulate;
+
     public Texture2D modelAvatar;
     public CubismModel modelPrefab;
 
     public List<CursorData> cursorList;
     public CursorData starterCursor;
-    
+
+    public SkinSet skinListHair;
+    public SkinSet skinListTop;
+    public SkinSet skinListBot;
+
     public InteractListById interactionSet;
     public AnimationClip starterMotion;
     public int starterExpression;
