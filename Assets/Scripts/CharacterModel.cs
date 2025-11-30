@@ -19,10 +19,10 @@ public class CharacterModel : MonoBehaviour
     public SkinController skinController;
     public InteractionController interactionController;
     public MouseTargetController mouseTargetController;
+    public DialogController dialogController;
+    public ModelMotionController modelMotionController;
 
     [Header("Default")]
-    public AnimationClip defaultMotion;
-    public int defaultExpression = 0;
     public float screenFill = 0.75f;
     public float topScreenMarginPercent = 0.25f;
 
@@ -45,8 +45,6 @@ public class CharacterModel : MonoBehaviour
     {
         topScreenMarginPercent = modelData.topScreenMarginPercent;
         screenFill = modelData.modelScreenFill;
-        defaultExpression = modelData.starterExpression;
-        defaultMotion = modelData.starterMotion;
 
         SetCursor(modelData.starterCursor);
         SetModel(modelData.modelPrefab);
@@ -54,6 +52,8 @@ public class CharacterModel : MonoBehaviour
         interactionController.Init(this, modelData.interactionSet);
         skinController.Init(this);
         mouseTargetController.Init(this);
+        dialogController.Init(this);
+        modelMotionController.Init(this, modelData.starterExpression, modelData.starterMotion);
     }
 
     public void SetCursor(CursorData data)
@@ -133,13 +133,13 @@ public class CharacterModel : MonoBehaviour
 
     public void PlayDefault()
     {
-        if (defaultMotion != null)
-            motionController.PlayAnimation(defaultMotion, isLoop: true);
-
-        if (defaultExpression >= 0)
-            expressionController.CurrentExpressionIndex = defaultExpression;
+        modelMotionController.PlayDefault();
     }
 
+    public void HaltDialog()
+    {
+        dialogController.HaltDialog();
+    }    
     public bool Pressed { get; set; }
     public InteractActionData CurrentInteraction { get { return interactionController.CurrentInteraction; } }
 }

@@ -2,22 +2,22 @@
 using Live2D.Cubism.Framework.Raycasting;
 using Live2D.Cubism.Framework;
 using Live2D.Cubism.Framework.Motion;
+using UnityEngine.EventSystems;
 
 public class InteractionController : MonoBehaviour
 {
+    public InteractionDataEventChannel interactionChannel;
+
     private CharacterModel model;
 
     private InteractListById interactionSet;
     private InteractActionData currentInteraction;
 
-    private bool justRemoved = false;
     private Vector2 startPos;
     private float pressTime;
 
     private float interactionTimer = -1f;
     private string currentHitArea = null;
-
-    public System.Action OnInteractionEnd;
 
     public float maxClickDistance = 10f;
     public float maxClickTime = 0.3f;
@@ -88,7 +88,10 @@ public class InteractionController : MonoBehaviour
     void TryClick()
     {
         if (currentHitArea == null) return;
-
+        if (EventSystem.current.IsPointerOverGameObject() || EventSystem.current.IsPointerOverGameObject(Input.GetTouch(0).fingerId))
+        {
+            return;
+        }
         var interaction = interactionSet.GetInteraction(currentHitArea, CursorManager.Instance.CurrentCursor);
         if (interaction != null)
             DoInteraction(interaction);
@@ -99,22 +102,15 @@ public class InteractionController : MonoBehaviour
     // -----------------------------
     public void DoInteraction(InteractActionData data)
     {
-        if (justRemoved)
-        {
-            justRemoved = false;
-            return;
-        }
-
         if (currentInteraction != null)
+        {
+            if (currentInteraction == data) return;
             RemoveInteraction(true);
+        }
 
         currentInteraction = data;
 
-        if (data.targetAnim != null)
-            model.motionController.PlayAnimation(data.targetAnim, priority: CubismMotionPriority.PriorityForce, isLoop: false);
-
-        if (data.targetExpression >= 0)
-            model.expressionController.CurrentExpressionIndex = data.targetExpression;
+        interactionChannel.RaiseEvent(currentInteraction);
 
         if (data.duration > 0)
             interactionTimer = data.duration;
@@ -123,21 +119,15 @@ public class InteractionController : MonoBehaviour
     // -----------------------------
     // UPDATE TIMER & LOOP
     // -----------------------------
+
+    public void OnMotionEnd()
+    {
+        if (currentInteraction == null) return;
+        if (currentInteraction.isEndOnAnimEnd)
+            RemoveInteraction();
+    }
     void UpdateInteractionTimer()
     {
-        if (currentInteraction != null)
-        {
-            if (currentInteraction.isEndOnAnimEnd)
-            {
-                if (!model.motionController.IsPlayingAnimation())
-                    RemoveInteraction();
-            }
-            else if (currentInteraction.animLoop)
-            {
-                if (!model.motionController.IsPlayingAnimation())
-                    OnLoopAnimationEnded();
-            }
-        }
 
         if (interactionTimer > 0)
         {
@@ -147,22 +137,15 @@ public class InteractionController : MonoBehaviour
         }
     }
 
-    void OnLoopAnimationEnded()
-    {
-        if (currentInteraction != null && !model.motionController.IsPlayingAnimation())
-            model.motionController.PlayAnimation(currentInteraction.targetAnim, isLoop: false);
-    }
-
     public void RemoveInteraction(bool isFromInteraction = false)
     {
-        if (currentInteraction != null && currentInteraction.isEndOnDialogEnd)
-            justRemoved = true;
-
         currentInteraction = null;
         interactionTimer = -1f;
-
+        model.HaltDialog();
         if (!isFromInteraction)
             model.PlayDefault();
+
+
     }
 
     public InteractActionData CurrentInteraction { get { return currentInteraction; } }
