@@ -4,11 +4,16 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "NewInteractActionData", menuName = "Controller/Interact/InteractActionData")]
 public class InteractActionData : ScriptableObject
 {
+    public bool isDrag = false;
+
     [Tooltip("Target animations to play")]
     public AnimationClip targetAnim = null;
 
     [Tooltip("Whether to loop the animation")]
     public bool animLoop = false;
+
+    [Tooltip("Target parameter to change")]
+    public string targetParamName = "";
 
     [Tooltip("Target expression to apply <ID>")]
     public int targetExpression = -1;
@@ -24,5 +29,7 @@ public class InteractActionData : ScriptableObject
 
     [Tooltip("End when dialog ends")]
     public bool isEndOnDialogEnd = false;
+
+    public InteractionLogic logic;
 }
 

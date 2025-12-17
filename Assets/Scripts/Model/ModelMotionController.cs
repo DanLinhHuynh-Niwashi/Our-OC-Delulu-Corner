@@ -7,7 +7,7 @@ using Yarn.Unity;
 public class ModelMotionController : MonoBehaviour
 {
     public CharacterModel cubismModel;
-    public EventChannel motionEndChannel;
+    //public EventChannel motionEndChannel;
 
     private AnimationClip currentAnim;
     private int defaultExpression;
@@ -28,7 +28,7 @@ public class ModelMotionController : MonoBehaviour
             if (!isLoop)
             {
                 currentAnim = null;
-                motionEndChannel.RaiseEvent();
+                //motionEndChannel.RaiseEvent();
             }
             else OnLoopAnimationEnded();
         }
@@ -50,6 +50,11 @@ public class ModelMotionController : MonoBehaviour
         if (currentAnim != null && !cubismModel.motionController.IsPlayingAnimation())
             cubismModel.motionController.PlayAnimation(currentAnim, isLoop: false);
     }
+
+    public bool IsPlayingAnimation()
+    {
+        return (currentAnim != null && cubismModel.motionController.IsPlayingAnimation());
+    }    
 
     public void PlayMotion(AnimationClip clip, bool isLoop)
     {

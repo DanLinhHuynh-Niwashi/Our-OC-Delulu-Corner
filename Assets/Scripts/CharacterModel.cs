@@ -21,6 +21,7 @@ public class CharacterModel : MonoBehaviour
     public MouseTargetController mouseTargetController;
     public DialogController dialogController;
     public ModelMotionController modelMotionController;
+    public ModelParamController modelParamController;
 
     [Header("Default")]
     public float screenFill = 0.75f;
@@ -38,7 +39,7 @@ public class CharacterModel : MonoBehaviour
         if (currentModel != null)
             SetUpFromModelData(currentModel);
 
-        PlayDefault();
+        modelMotionController.PlayDefault();
     }
 
     void SetUpFromModelData(ModelData modelData)
@@ -53,6 +54,7 @@ public class CharacterModel : MonoBehaviour
         skinController.Init(this);
         mouseTargetController.Init(this);
         dialogController.Init(this);
+        modelParamController.Init(this);
         modelMotionController.Init(this, modelData.starterExpression, modelData.starterMotion);
     }
 
@@ -130,16 +132,10 @@ public class CharacterModel : MonoBehaviour
             transform.position.z
         );
     }
-
-    public void PlayDefault()
+ 
+    public InteractActionData CurrentInteraction
     {
-        modelMotionController.PlayDefault();
+        get { return interactionController.CurrentInteraction; }
     }
-
-    public void HaltDialog()
-    {
-        dialogController.HaltDialog();
-    }    
     public bool Pressed { get; set; }
-    public InteractActionData CurrentInteraction { get { return interactionController.CurrentInteraction; } }
 }
