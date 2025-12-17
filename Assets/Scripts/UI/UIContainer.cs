@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using UnityEngine;
 
-public class ModelContainer : MonoBehaviour
+public class UIContainer : MonoBehaviour
 {
     public List<CursorButton> cursorButtons;
     public List<SkinButton> skinButtons;
