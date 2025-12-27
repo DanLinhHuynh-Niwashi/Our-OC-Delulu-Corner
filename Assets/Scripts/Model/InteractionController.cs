@@ -27,6 +27,11 @@ public class InteractionController : MonoBehaviour
     public InputActionReference positionAction;
     public InputActionReference deltaAction;
 
+    [Header("Coyote Time")]
+    public float interactionCoyoteTime = 0.2f;
+    private InteractActionData pendingInteraction;
+    private float pendingExpireTime;
+
     private void OnEnable()
     {
         clickAction.action.Enable();
@@ -55,7 +60,6 @@ public class InteractionController : MonoBehaviour
 
     public void OnClick(InputAction.CallbackContext ctx)
     {
-        Debug.Log("Clicked");
         clickStartPos = clickCurrentPos;
         model.Pressed = true;
         pressTime = Time.time;
@@ -66,7 +70,6 @@ public class InteractionController : MonoBehaviour
 
     public void OnClickRelease(InputAction.CallbackContext ctx)
     {
-        Debug.Log("Click Released");
         model.Pressed = false;
 
         if (clickCurrentPos != null && clickStartPos != null)
@@ -74,7 +77,7 @@ public class InteractionController : MonoBehaviour
             float dist = Vector2.Distance((Vector2)clickCurrentPos, (Vector2)clickStartPos);
             float time = Time.time - pressTime;
 
-            if (dist <= maxClickDistance && time <= maxClickTime && clickCurrentPos != null)
+            if (dist <= maxClickDistance && time <= maxClickTime)
             {
                 DetectHitArea((Vector2)clickCurrentPos);
                 TryClick();
@@ -92,33 +95,6 @@ public class InteractionController : MonoBehaviour
         currentDragDelta = ctx.ReadValue<Vector2>();
     }
 
-    //private bool isDragging = false;
-    //public bool IsDragging { get { return isDragging; } }
-    
-
-    //public void OnDrag(InputAction.CallbackContext ctx)
-    //{
-    //    currentDragDelta = ctx.ReadValue<Vector2>();
-
-    //    if (ctx.started)
-    //    {
-    //        TryStartDrag(ctx);
-    //    }
-    //    else if (ctx.canceled)
-    //    {
-    //        EndDrag();
-    //    }
-    //}
-
-    //void TryStartDrag(InputAction.CallbackContext ctx)
-    //{
-    //    Vector2 screenPos = Pointer.current.position.ReadValue();
-
-    //    DetectHitArea(screenPos);
-    //    TryDrag();
-    //}
-
-
     public Vector2 GetDragDelta(float sensitivity = 1f)
     {
         Vector2 delta = currentDragDelta;
@@ -126,60 +102,74 @@ public class InteractionController : MonoBehaviour
         return delta * sensitivity;
     }
 
-    //public void EndDrag()
-    //{
-    //    isDragging = false;
-    //    currentDragDelta = Vector2.zero;
-    //}
-
-    //void ProcessInput()
-    //{
-    //    if (Input.GetMouseButtonDown(0))
-    //    {
-    //        startPos = Input.mousePosition;
-    //        pressTime = Time.time;
-    //        model.Pressed = true;
-    //    }
-
-    //    if (Input.GetMouseButtonUp(0) && model.Pressed)
-    //    {
-    //        model.Pressed = false;
-
-    //        float dist = Vector2.Distance(Input.mousePosition, startPos);
-    //        float time = Time.time - pressTime;
-
-    //        if (dist <= maxClickDistance && time <= maxClickTime)
-    //            TryClick();
-    //    }
-    //}
-
     // -----------------------------
-    // CLICK
+    // CLICK / DRAG
     // -----------------------------
     void TryClick()
     {
         if (currentHitArea == null) return;
-        if (CursorManager.Instance.IsCursorBlocked()) return;
-        if (CursorManager.Instance.IgnoreNextFrame) return;
-        if (model.dialogController.IsBusy()) return;
 
         var interaction = interactionSet.GetInteraction(currentHitArea, CursorManager.Instance.CurrentCursor);
-        if (interaction != null)
+        if (interaction == null) return;
+
+        if (CanExecuteInteraction())
+        {
             ExecuteInteraction(interaction);
+        }
+        else
+        {
+            BufferInteraction(interaction);
+        }
     }
 
     void TryDrag()
     {
         if (currentHitArea == null) return;
-        if (CursorManager.Instance.IsCursorBlocked()) return;
-        if (CursorManager.Instance.IgnoreNextFrame) return;
-        if (model.dialogController.IsBusy()) return;
-        if (currentInteraction != null) return;
-        
+
         var interaction = interactionSet.GetInteraction(currentHitArea, CursorManager.Instance.CurrentCursor);
-        if (interaction != null && interaction.isDrag)
+        if (interaction == null || !interaction.isDrag) return;
+
+        if (CanExecuteInteraction())
+        {
             ExecuteInteraction(interaction);
+        }
+        else
+        {
+            BufferInteraction(interaction);
+        }
     }
+
+    private bool CanExecuteInteraction()
+    {
+        if (CursorManager.Instance.IsCursorBlocked()) return false;
+        if (CursorManager.Instance.IgnoreNextFrame) return false;
+        if (model.dialogController.IsBusy()) return false;
+        if (currentInteraction != null) return false;
+        return true;
+    }
+
+    private void BufferInteraction(InteractActionData interaction)
+    {
+        pendingInteraction = interaction;
+        pendingExpireTime = Time.time + interactionCoyoteTime;
+    }
+
+    private void TryConsumeBufferedInteraction()
+    {
+        if (pendingInteraction == null) return;
+
+        if (Time.time > pendingExpireTime)
+        {
+            pendingInteraction = null;
+            return;
+        }
+
+        if (!CanExecuteInteraction()) return;
+
+        ExecuteInteraction(pendingInteraction);
+        pendingInteraction = null;
+    }
+
     // -----------------------------
     // INIT
     // -----------------------------
@@ -191,8 +181,8 @@ public class InteractionController : MonoBehaviour
 
     void Update()
     {
-        //DetectHitArea();
-        //ProcessInput();
+        // xử lý interaction buffer trước
+        TryConsumeBufferedInteraction();
 
         if (currentInteraction == null) return;
 
@@ -210,7 +200,6 @@ public class InteractionController : MonoBehaviour
         {
             EndInteraction();
         }
-
     }
 
     // -----------------------------
@@ -236,8 +225,6 @@ public class InteractionController : MonoBehaviour
         }
     }
 
-    
-
     // -----------------------------
     // EXECUTE INTERACTION
     // -----------------------------
@@ -257,7 +244,7 @@ public class InteractionController : MonoBehaviour
     {
         if (currentInteraction?.logic != null)
         {
-            currentInteraction.logic.End(new InteractionContext { Model = model, Controller = this, Data = currentInteraction});
+            currentInteraction.logic.End(new InteractionContext { Model = model, Controller = this, Data = currentInteraction });
         }
 
         currentInteraction = null;
@@ -271,10 +258,8 @@ public class InteractionController : MonoBehaviour
         return StartCoroutine(routine);
     }
 
-    public InteractActionData CurrentInteraction { 
-        get
-        {
-            return currentInteraction;
-        }
+    public InteractActionData CurrentInteraction
+    {
+        get { return currentInteraction; }
     }
 }
