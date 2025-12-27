@@ -1,90 +1,122 @@
-﻿using Live2D.Cubism.Framework.Expression;
+﻿using System.Collections.Generic;
+using Live2D.Cubism.Framework.Expression;
 using Live2D.Cubism.Framework.Motion;
-using TMPro;
 using UnityEngine;
-using Yarn.Unity;
 
 public class ModelMotionController : MonoBehaviour
 {
+    [Header("Model References")]
     public CharacterModel cubismModel;
-    //public EventChannel motionEndChannel;
 
-    private AnimationClip currentAnim;
-    private int defaultExpression;
-    private AnimationClip defaultMotion;
+    [Header("Default Settings")]
+    public int defaultExpression = 0;
+    public AnimationClip defaultMotion;
+    public bool defaultMotionLoop = true;
 
-    private bool isLoop = false;
-    public void Init(CharacterModel cubismModel, int defaultExpression, AnimationClip defaultMotion)
+    private class MotionLayer
     {
-        this.cubismModel = cubismModel;
-        this.defaultExpression = defaultExpression;
-        this.defaultMotion = defaultMotion;
+        public AnimationClip currentClip;
+        public bool isLoop;
+        public int priority;
     }
 
+    private Dictionary<int, MotionLayer> motionLayers = new Dictionary<int, MotionLayer>();
+
+    public void Init(CharacterModel cubismModel, int defaultExpression, AnimationClip defaultMotion) {
+        this.cubismModel = cubismModel; 
+        this.defaultExpression = defaultExpression; 
+        this.defaultMotion = defaultMotion; 
+    }
     private void Update()
     {
-        if (!cubismModel.motionController.IsPlayingAnimation())
+        foreach (var kvp in motionLayers)
         {
-            if (!isLoop)
+            int layer = kvp.Key;
+            MotionLayer motion = kvp.Value;
+
+            if (motion.currentClip != null && !cubismModel.motionController.IsPlayingAnimation(layer))
             {
-                currentAnim = null;
-                //motionEndChannel.RaiseEvent();
+                if (motion.isLoop)
+                {
+                    // Lặp lại animation
+                    cubismModel.motionController.PlayAnimation(motion.currentClip, layer, motion.priority, isLoop: false);
+                }
+                else
+                {
+                    motion.currentClip = null;
+                }
             }
-            else OnLoopAnimationEnded();
         }
     }
-    public void OnInteraction(InteractActionData data)
-    {
-        if (data.targetAnim != null)
-            PlayMotion(data.targetAnim, data.animLoop);
 
-        if (data.targetExpression >= 0)
-            ChangeExpression(data.targetExpression);
+    public void PlayMotion(AnimationClip clip, int layer = 0, bool isLoop = false, int priority = CubismMotionPriority.PriorityForce)
+    {
+        if (clip == null || cubismModel == null) return;
+
+        cubismModel.motionController.PlayAnimation(clip, layer, priority, isLoop: false);
+
+        motionLayers[layer] = new MotionLayer
+        {
+            currentClip = clip,
+            isLoop = isLoop,
+            priority = priority
+        };
+    }
+
+    public void StopMotion(int layer)
+    {
+        if (motionLayers.ContainsKey(layer))
+        {
+            motionLayers.Remove(layer);
+        }
+    }
+
+    public void OnInteraction(List<TargetAnimation> targetAnimations, int targetExpression)
+    {
+        if (targetAnimations != null)
+        {
+            foreach (var anim in targetAnimations)
+            {
+                if (anim.clip != null)
+                {
+                    PlayMotion(anim.clip, anim.layer, anim.loop);
+                }
+            }
+        }
+
+        if (targetExpression >= 0)
+            ChangeExpression(targetExpression);
         else
             ChangeExpression(defaultExpression);
-
     }
 
-    void OnLoopAnimationEnded()
+    public bool IsPlayingAnimation(int layer = 0)
     {
-        if (currentAnim != null && !cubismModel.motionController.IsPlayingAnimation())
-            cubismModel.motionController.PlayAnimation(currentAnim, isLoop: false);
+        return motionLayers.ContainsKey(layer) && motionLayers[layer].currentClip != null;
     }
 
-    public bool IsPlayingAnimation()
+    public void ForceStopAll()
     {
-        return (currentAnim != null && cubismModel.motionController.IsPlayingAnimation());
-    }    
-
-    public void PlayMotion(AnimationClip clip, bool isLoop)
-    {
-        cubismModel.motionController.PlayAnimation(clip, priority: CubismMotionPriority.PriorityForce, isLoop: false);
-        currentAnim = clip;
-        this.isLoop = isLoop;
-    }
-    
-    public void ForceStop()
-    {
-        isLoop = false;
-        currentAnim = null;
+        motionLayers.Clear();
     }
 
-    public void ChangeExpression(int expression)
+    public void ChangeExpression(int expressionIndex)
     {
-        cubismModel.expressionController.CurrentExpressionIndex = expression;
+        if (cubismModel == null || cubismModel.expressionController == null) return;
+        cubismModel.expressionController.CurrentExpressionIndex = expressionIndex;
     }
-    public void PlayDefault()
+    public void PlayDefaultExpression()
     {
-        if (defaultMotion == null) return;
-        if (defaultExpression < 0) defaultExpression = 0;
-        
-        
-        cubismModel.motionController.PlayAnimation(defaultMotion, isLoop: true);
-        cubismModel.expressionController.CurrentExpressionIndex = defaultExpression;
-
-        currentAnim = defaultMotion;
-        isLoop = true;
+        ChangeExpression(defaultExpression);
     }
 
+    public void PlayDefaultState()
+    {
+        PlayDefaultExpression();
 
+        if (defaultMotion != null)
+        {
+            PlayMotion(defaultMotion, layer: 0, isLoop: defaultMotionLoop, priority: CubismMotionPriority.PriorityForce);
+        }
+    }
 }
