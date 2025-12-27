@@ -12,11 +12,11 @@ public class CursorManager : MonoBehaviour
     private CursorData currentCursor;
 
     // ========== Block cursor ==========
-    private bool blockCursor = false;
+    [SerializeField] private bool blockCursor = false;
 
     // Backing field cho IgnoreNextFrame
-    private bool ignoreNextFrame = false;
-    private bool ignoreNextFramePending = false;
+    [SerializeField] private bool ignoreNextFrame = false;
+    [SerializeField] private bool ignoreNextFramePending = false;
 
     // Property
     public bool IgnoreNextFrame
