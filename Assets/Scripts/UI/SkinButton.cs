@@ -26,6 +26,7 @@ public class SkinButton : MonoBehaviour
         int nextIndex = (currentIndex + 1) % skinList.skinList.Count;
 
         skinData = skinList.skinList[nextIndex];
+        skinData.setId = skinList.setId;
 
         if (eventChannel)
             eventChannel.RaiseEvent(skinData);
@@ -37,9 +38,11 @@ public class SkinButton : MonoBehaviour
         if (skinList == null || skinList.skinList.Count == 0)
             return;
         this.skinList = skinList;
-        this.skinData = skinList.skinList[0];
+        skinData = skinList.skinList[0];
         buttonImage.sprite = skinList.buttonDeselect;
         buttonImage.preserveAspect = true;
+        if (eventChannel)
+            eventChannel.RaiseEvent(skinData);
 
     }
 

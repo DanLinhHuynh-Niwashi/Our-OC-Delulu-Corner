@@ -151,6 +151,7 @@ GameObject:
   - component: {fileID: 655419053637286881}
   - component: {fileID: 7709624944044274707}
   - component: {fileID: 6159992006566189190}
+  - component: {fileID: 1768644234248185850}
   m_Layer: 5
   m_Name: SkinButton
   m_TagString: Untagged
@@ -296,6 +297,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00bb6fd4f6599ed4b8661a5d208b6828, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  skinList: {fileID: 0}
   skinData: {fileID: 0}
   button: {fileID: 1576729558873740331}
   buttonImage: {fileID: 2447485956765778192}
@@ -328,3 +330,17 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &1768644234248185850
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4091408872558892216}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86710e43de46f6f4bac7c8e50813a599, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_AspectMode: 2
+  m_AspectRatio: 1
