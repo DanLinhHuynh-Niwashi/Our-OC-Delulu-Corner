@@ -8,7 +8,7 @@ public class InteractionController : MonoBehaviour
 {
     public CharacterModel model;
     //public InteractionDataEventChannel interactionChannel;
-
+    [SerializeField]
     private InteractActionData currentInteraction;
 
     private string currentHitArea = null;
@@ -121,7 +121,9 @@ public class InteractionController : MonoBehaviour
 
     public Vector2 GetDragDelta(float sensitivity = 1f)
     {
-        return currentDragDelta * sensitivity;
+        Vector2 delta = currentDragDelta;
+        currentDragDelta = new Vector2(0, 0);
+        return delta * sensitivity;
     }
 
     //public void EndDrag()
@@ -172,7 +174,8 @@ public class InteractionController : MonoBehaviour
         if (CursorManager.Instance.IsCursorBlocked()) return;
         if (CursorManager.Instance.IgnoreNextFrame) return;
         if (model.dialogController.IsBusy()) return;
-
+        if (currentInteraction != null) return;
+        
         var interaction = interactionSet.GetInteraction(currentHitArea, CursorManager.Instance.CurrentCursor);
         if (interaction != null && interaction.isDrag)
             ExecuteInteraction(interaction);
