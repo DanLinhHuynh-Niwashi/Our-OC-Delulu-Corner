@@ -7,11 +7,12 @@ public class MouseTargetController : MonoBehaviour
     private Camera cam;
 
     private CubismLookTargetBehaviour lookTarget;
-
-    public void Init(CharacterModel model)
+    private float targetOffset = 0.0f;
+    public void Init(CharacterModel model, float targetOffset)
     {
         this.model = model;
         cam = Camera.main;
+        this.targetOffset = targetOffset;
 
         GameObject go = new GameObject("LookTarget");
         go.transform.SetParent(model.transform, false);
@@ -28,6 +29,7 @@ public class MouseTargetController : MonoBehaviour
 
         if (model.Pressed && model.CurrentInteraction == null) {
             var world = cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 1f));
+            world.y += targetOffset * model.cubismModel.transform.localScale.y;
             lookTarget.transform.position = world;
         }
         else

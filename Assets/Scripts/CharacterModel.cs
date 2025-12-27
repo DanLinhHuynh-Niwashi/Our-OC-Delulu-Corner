@@ -39,7 +39,7 @@ public class CharacterModel : MonoBehaviour
         if (currentModel != null)
             SetUpFromModelData(currentModel);
 
-        modelMotionController.PlayDefault();
+        modelMotionController.PlayDefaultState();
     }
 
     void SetUpFromModelData(ModelData modelData)
@@ -52,7 +52,7 @@ public class CharacterModel : MonoBehaviour
 
         interactionController.Init(this, modelData.interactionSet);
         skinController.Init(this);
-        mouseTargetController.Init(this);
+        mouseTargetController.Init(this, -modelHeight/2);
         dialogController.Init(this);
         modelParamController.Init(this);
         modelMotionController.Init(this, modelData.starterExpression, modelData.starterMotion);
@@ -75,7 +75,7 @@ public class CharacterModel : MonoBehaviour
             Destroy(cubismModel.gameObject);
 
         cubismModel = Instantiate(newModel, transform);
-
+        cubismModel.gameObject.SetActive(true);
         LoadModel();
         ComputeModelBounds();
         PositionAndScale();
@@ -86,6 +86,7 @@ public class CharacterModel : MonoBehaviour
         if (cubismModel == null) return;
 
         motionController = cubismModel.GetComponent<CubismMotionController>();
+        motionController.LayerCount = 3;
         expressionController = cubismModel.GetComponent<CubismExpressionController>();
         lookController = cubismModel.GetComponent<CubismLookController>();
         cubismRaycaster = cubismModel.GetComponent<CubismRaycaster>();
