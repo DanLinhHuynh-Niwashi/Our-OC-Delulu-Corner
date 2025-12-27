@@ -6,6 +6,7 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "NewSkinSet", menuName = "Controller/Skin/SkinSet")]
 public class SkinSet : ScriptableObject
 {
+    public string setId;
     public Sprite buttonSelect;
     public Sprite buttonDeselect;
     public List<SkinData> skinList;
