@@ -116,7 +116,7 @@ public class InteractionController : MonoBehaviour
         {
             ExecuteInteraction(interaction);
         }
-        else
+        else if (!IsDialogInteraction())
         {
             BufferInteraction(interaction);
         }
@@ -133,12 +133,16 @@ public class InteractionController : MonoBehaviour
         {
             ExecuteInteraction(interaction);
         }
-        else
+        else if (!IsDialogInteraction())
         {
             BufferInteraction(interaction);
         }
     }
 
+    private bool IsDialogInteraction()
+    {
+        return currentInteraction != null && currentInteraction.isEndOnDialogEnd;
+    }
     private bool CanExecuteInteraction()
     {
         if (CursorManager.Instance.IsCursorBlocked()) return false;
@@ -193,10 +197,11 @@ public class InteractionController : MonoBehaviour
             Data = currentInteraction
         };
 
-        bool animEnded = currentInteraction.isEndOnAnimEnd && !currentInteraction.logic.IsBusy(ctx);
-        bool dialogEnded = currentInteraction.isEndOnDialogEnd && !model.dialogController.IsBusy();
+        bool interactionEnded = !currentInteraction.logic.IsBusy(ctx);
+        //bool animEnded = currentInteraction.isEndOnAnimEnd && interactionEnded;
+        //bool dialogEnded = currentInteraction.isEndOnDialogEnd && interactionEnded;
 
-        if (animEnded || dialogEnded)
+        if (interactionEnded)
         {
             EndInteraction();
         }

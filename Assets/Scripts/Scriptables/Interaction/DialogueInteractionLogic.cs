@@ -11,6 +11,7 @@ public class DialogueInteractionLogic : InteractionLogic
     public override void End(InteractionContext ctx)
     {
         ctx.Model.dialogController.HaltDialog();
+        CursorManager.Instance.BlockCursor(false);
     }
 
     public override bool IsBusy(InteractionContext ctx)
