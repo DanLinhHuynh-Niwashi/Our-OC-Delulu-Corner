@@ -11,20 +11,21 @@ public class ModelParamController : MonoBehaviour
 
     private class ParamTarget
     {
-        public float TargetValue;
-        public bool IsAdditive; // true nếu MoveParameter, false nếu Reset
+        public float FromValue;
+        public float ToValue;
+        public float Duration;
+        public float Elapsed;
+        public bool IsAdditive;
     }
 
-    private Dictionary<string, ParamTarget> paramTargets = new Dictionary<string, ParamTarget>();
-    private float lerpSpeed = 5f;
+    private Dictionary<string, ParamTarget> paramTargets = new();
 
     public void Init(CharacterModel model)
     {
         this.model = model;
-        this.cubismModel = model.cubismModel;
+        cubismModel = model.cubismModel;
     }
 
-    // Thêm delta, giữ nguyên trong paramTargets
     public void MoveParameter(string paramName, float delta)
     {
         if (cubismModel == null) return;
@@ -32,23 +33,32 @@ public class ModelParamController : MonoBehaviour
         var param = cubismModel.Parameters.FirstOrDefault(p => p.Id == paramName);
         if (param == null) return;
 
-        if (!paramTargets.ContainsKey(paramName))
-            paramTargets[paramName] = new ParamTarget { TargetValue = param.Value, IsAdditive = true };
-
-        paramTargets[paramName].TargetValue += delta;
-        paramTargets[paramName].IsAdditive = true;
+        float target = param.Value + delta;
+        Debug.Log(target);
+        paramTargets[paramName] = new ParamTarget
+        {
+            FromValue = param.Value,
+            ToValue = target,
+            Duration = 0f,
+            Elapsed = 0f,
+            IsAdditive = true
+        };
     }
-
-    // Reset về default, giữ target trong paramTargets
-    public void ResetParameter(string paramName, float speed = 5f)
+    public void ResetParameter(string paramName, float fadeTime = 0.5f)
     {
         if (cubismModel == null) return;
 
         var param = cubismModel.Parameters.FirstOrDefault(p => p.Id == paramName);
         if (param == null) return;
 
-        paramTargets[paramName] = new ParamTarget { TargetValue = param.DefaultValue, IsAdditive = false };
-        lerpSpeed = speed;
+        paramTargets[paramName] = new ParamTarget
+        {
+            FromValue = param.Value,
+            ToValue = param.DefaultValue,
+            Duration = Mathf.Max(0.001f, fadeTime),
+            Elapsed = 0f,
+            IsAdditive = false
+        };
     }
 
     private void LateUpdate()
@@ -64,16 +74,32 @@ public class ModelParamController : MonoBehaviour
                 continue;
             }
 
-            // Nếu additive thì cộng delta, còn reset thì lerp về default
-            if (kvp.Value.IsAdditive)
+            var data = kvp.Value;
+
+            data.Elapsed += Time.deltaTime;
+
+            float t = data.Duration <= 0f
+                ? 1f
+                : Mathf.Clamp01(data.Elapsed / data.Duration);
+
+            float easedT = t * t * (3f - 2f * t);
+
+            float value = Mathf.Lerp(data.FromValue, data.ToValue, easedT);
+            value = Mathf.Clamp(value, param.MinimumValue, param.MaximumValue);
+
+            param.BlendToValue(
+                CubismParameterBlendMode.Override,
+                value
+            );
+
+            if (t >= 1f)
             {
-                param.Value = Mathf.Clamp(kvp.Value.TargetValue, param.MinimumValue, param.MaximumValue);
-            }
-            else
-            {
-                param.Value = Mathf.Lerp(param.Value, kvp.Value.TargetValue, Time.deltaTime * lerpSpeed);
-                if (Mathf.Abs(param.Value - kvp.Value.TargetValue) < 0.001f)
-                    paramTargets.Remove(kvp.Key);
+                param.BlendToValue(
+                    CubismParameterBlendMode.Override,
+                    data.ToValue
+                );
+
+                paramTargets.Remove(kvp.Key);
             }
         }
     }
