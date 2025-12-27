@@ -5,6 +5,7 @@ using Live2D.Cubism.Framework.Expression;
 using Live2D.Cubism.Framework.LookAt;
 using Live2D.Cubism.Framework.Raycasting;
 using Live2D.Cubism.Rendering;
+using Live2D.Cubism.Framework;
 
 public class CharacterModel : MonoBehaviour
 {
@@ -13,6 +14,7 @@ public class CharacterModel : MonoBehaviour
     public CubismExpressionController expressionController;
     public CubismLookController lookController;
     public CubismRaycaster cubismRaycaster;
+    public CubismEyeBlinkController eyeBlinkController;
     public CubismModel cubismModel;
 
     [Header("Custom Controllers")]
@@ -87,6 +89,7 @@ public class CharacterModel : MonoBehaviour
 
         motionController = cubismModel.GetComponent<CubismMotionController>();
         motionController.LayerCount = 3;
+        eyeBlinkController = cubismModel.GetComponent<CubismEyeBlinkController>();
         expressionController = cubismModel.GetComponent<CubismExpressionController>();
         lookController = cubismModel.GetComponent<CubismLookController>();
         cubismRaycaster = cubismModel.GetComponent<CubismRaycaster>();
