@@ -65,9 +65,17 @@ public class InteractionController : MonoBehaviour
         pressTime = Time.time;
 
         DetectHitArea((Vector2)clickCurrentPos);
+        //if (currentHitArea != null)
+            //StartsCoroutine(CursorBlockRoutine());
         TryDrag();
     }
 
+    private IEnumerator CursorBlockRoutine()
+    {
+        CursorManager.Instance.BlockCursor(true);
+        yield return new WaitForSeconds(0.3f);
+        CursorManager.Instance.BlockCursor(false);
+    }
     public void OnClickRelease(InputAction.CallbackContext ctx)
     {
         model.Pressed = false;

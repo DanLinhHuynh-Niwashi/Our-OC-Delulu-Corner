@@ -118,17 +118,31 @@ public class CharacterModel : MonoBehaviour
     void PositionAndScale()
     {
         if (cam == null) cam = Camera.main;
+
         float camHeight = cam.orthographicSize * 2f;
 
-        float scale = (camHeight * screenFill) / modelHeight;
+        float portraitRatio = (float)Screen.height / Screen.width;
+        float ratio01 = Mathf.InverseLerp(1.7f, 2.3f, portraitRatio);
 
-        Debug.Log("[SETTING MODEL] Cam height " + camHeight);
-        Debug.Log("[SETTING MODEL] Model height " + modelHeight);
+        // Scale
+        float baseScale = (camHeight * screenFill) / modelHeight;
+        float scaleFactor = Mathf.Lerp(1.05f, 0.9f, ratio01);
+        float scale = baseScale * scaleFactor;
 
         cubismModel.transform.localScale = Vector3.one * scale;
 
+        // Position
         float modelTopY = (modelHeight + modelMinY) * scale;
-        float offsetY = camHeight / 2f - camHeight * topScreenMarginPercent - modelTopY;
+
+        float topMargin = Mathf.Lerp(
+            topScreenMarginPercent * 0.6f,
+            topScreenMarginPercent * 1.3f,
+            ratio01
+        );
+
+        float offsetY = camHeight / 2f
+                      - camHeight * topMargin
+                      - modelTopY;
 
         transform.position = new Vector3(
             cam.transform.position.x,
@@ -136,7 +150,8 @@ public class CharacterModel : MonoBehaviour
             transform.position.z
         );
     }
- 
+
+
     public InteractActionData CurrentInteraction
     {
         get { return interactionController.CurrentInteraction; }
