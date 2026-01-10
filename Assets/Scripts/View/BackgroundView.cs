@@ -49,24 +49,41 @@ public class BackgroundView : MonoBehaviour
         for (int i = ambientRoot.childCount - 1; i >= 0; i--)
             Destroy(ambientRoot.GetChild(i).gameObject);
     }
-    private IEnumerator CrossfadeBG(Sprite newBack, Sprite newFG)
+
+    void ApplyForeground(BackgroundData data, Image foregroundImage)
     {
+        if (data.foregroundSprite == null)
+        {
+            foregroundImage.gameObject.SetActive(false);
+            return;
+        }
+
+        foregroundImage.gameObject.SetActive(true);
+        foregroundImage.sprite = data.foregroundSprite;
+        foregroundImage.preserveAspect = true;
+        var rect = foregroundImage.rectTransform;
+        var layout = data.foregroundLayoutData;
+
+        rect.anchorMin = layout.anchorMin;
+        rect.anchorMax = layout.anchorMax;
+        rect.pivot = layout.pivot;
+        rect.anchoredPosition = layout.anchoredPosition;
+        rect.localScale = layout.scale;
+    }
+
+    private IEnumerator CrossfadeBG(BackgroundData newBackgroundData)
+    {
+        Sprite newBack = newBackgroundData.backSprite;
+        Sprite newFG = newBackgroundData.foregroundSprite;
         // Setup new sprites
         backImageNew.sprite = newBack;
+        backImageNew.preserveAspect = true;
         backImageNew.gameObject.GetComponent<AspectRatioFitter>().aspectRatio = newBack.bounds.size.x / newBack.bounds.size.y;
         backImageNew.gameObject.SetActive(true);
         backImageNew.canvasRenderer.SetAlpha(0f);
 
-        if (newFG != null)
-        {
-            foregroundImageNew.sprite = newFG;
-            foregroundImageNew.gameObject.SetActive(true);
-            foregroundImageNew.canvasRenderer.SetAlpha(0f);
-        }
-        else
-        {
-            foregroundImageNew.gameObject.SetActive(false);
-        }
+        ApplyForeground(newBackgroundData, foregroundImageNew);
+        foregroundImageNew.canvasRenderer.SetAlpha(0f);
 
         backImageOld.canvasRenderer.SetAlpha(1f);
         foregroundImageOld.canvasRenderer.SetAlpha(1f);
@@ -118,7 +135,7 @@ public class BackgroundView : MonoBehaviour
         // Destroy old ambient
         ClearAmbient();
 
-        StartCoroutine(CrossfadeBG(data.backSprite, data.foregroundSprite));
+        StartCoroutine(CrossfadeBG(data));
         
         // Add new ambient
         if (data.ambientLayers != null)
